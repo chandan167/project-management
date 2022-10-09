@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  project-managemant:
+    image: project-management
+    build:
+      context: .
+      args:
+        - NODE_ENV=${NODE_ENV}
+        - PORT=${PORT}
+    environment:
+      - DEBUG=${DEBUG}
+      - NODE_ENV=${NODE_ENV}
+      - PORT=${PORT}
+    ports:
+      - ${PORT}:${PORT}
+    command: node dist/main.js

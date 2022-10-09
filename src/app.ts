@@ -14,7 +14,6 @@ app.use(express.json()).use(express.urlencoded({ extended: true }))
 
 
 
-
 app.use((_req: Request, _res: Response, next: NextFunction) => {
     next(new NotFound('Route not found'))
 })
