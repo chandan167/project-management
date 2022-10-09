@@ -1,4 +1,5 @@
 import express, { Application, NextFunction, Request, Response } from 'express';
+import './config/database';
 import morgan from 'morgan';
 import cors from 'cors';
 import { NotFound, HttpError } from 'http-errors';
@@ -14,7 +15,7 @@ app.use(express.json()).use(express.urlencoded({ extended: true }))
     .use(morgan('dev')).use(cors()).use(setExpressGlobalObject);
 
 
-app.use(routes);
+app.use('/api',routes);
 
 app.use((_req: Request, _res: Response, next: NextFunction) => {
     next(new NotFound('Route not found'))

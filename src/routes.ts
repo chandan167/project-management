@@ -1,10 +1,13 @@
-import { Request, Response, Router } from "express";
+import { Router } from "express";
+import { group } from "./utils/group-route";
+import { asyncResolver } from "./utils/helper";
+
+import * as UserController from './controllers/user.controller';
 
 export const routes:Router = Router();
 
-routes.get('/', (req:Request, res:Response) =>{
-    return res.json({
-        env:process.env
-    })
-})
+routes.use('/user', group((userRoute) =>{
+    userRoute.get('/', asyncResolver(UserController.getUsers));
+    userRoute.post('/sign-up', asyncResolver(UserController.createUsers))
+}))
 

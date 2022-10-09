@@ -12,6 +12,8 @@ services:
       - DEBUG=${DEBUG}
       - NODE_ENV=${NODE_ENV}
       - PORT=${PORT}
+      - MONGO_URI=${MONGO_URI}
+      - PASSWORD_SALT=${PASSWORD_SALT}
     command: node dist/main.js
     depends_on:
       - mongo
