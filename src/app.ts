@@ -6,6 +6,7 @@ import { environment } from './config/environment';
 import { setExpressGlobalObject } from './utils/express-object';
 import { apiResponse } from './utils/api-response';
 import { StatusCodes, ReasonPhrases } from 'http-status-codes';
+import { routes } from './routes';
 
 export const app: Application = express();
 
@@ -13,6 +14,7 @@ app.use(express.json()).use(express.urlencoded({ extended: true }))
     .use(morgan('dev')).use(cors()).use(setExpressGlobalObject);
 
 
+app.use(routes);
 
 app.use((_req: Request, _res: Response, next: NextFunction) => {
     next(new NotFound('Route not found'))
