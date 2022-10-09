@@ -8,3 +8,6 @@ Dockerfile
 .eslintrc.json
 tsconfig.json
 docker-compose*
+src
+nginx
+mongo-data

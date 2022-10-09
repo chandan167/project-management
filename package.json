@@ -9,7 +9,7 @@
     "compose:dev:up": "docker compose --env-file .env.dev up --build -d",
     "compose:dev:down": "docker compose --env-file .env.dev down -v",
     "compose:prod:up": "npm install && npm run build && docker compose -f docker-compose.prod.yml --env-file .env.prod up --build -d",
-    "compose:prod:down": "docker compose -f docker-compose.prod.yml --env-file .env.prod down -V",
+    "compose:prod:down": "docker compose -f docker-compose.prod.yml --env-file .env.prod down -v",
     "build": "tsc",
     "lint": "eslint src/**.ts --fix",
     "test": "echo \"Error: no test specified\" && exit 1"
