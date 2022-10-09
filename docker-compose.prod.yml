@@ -14,6 +14,8 @@ services:
       - PORT=${PORT}
       - MONGO_URI=${MONGO_URI}
       - PASSWORD_SALT=${PASSWORD_SALT}
+      - JWT_AUTH_TOKEN_EXPIRE_IN=${JWT_AUTH_TOKEN_EXPIRE_IN}
+      - JWT_REFRESH_TOKEN_EXPIRE_IN=${JWT_REFRESH_TOKEN_EXPIRE_IN}
     command: node dist/main.js
     depends_on:
       - mongo

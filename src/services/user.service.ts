@@ -15,3 +15,11 @@ export async function getUsers(){
 export async function createUser(user: IUser){
     return await User.create(user);
 }
+
+export async function userLogin(email:string, password:string){
+    const user = await findByEmail(email);
+    if(user && await user.comparePassword(password)){
+        return user;
+    }
+    return null;
+}
