@@ -8,14 +8,33 @@ import { setExpressGlobalObject } from './utils/express-object';
 import { apiResponse } from './utils/api-response';
 import { StatusCodes, ReasonPhrases } from 'http-status-codes';
 import { routes } from './routes';
+import { userBearerToken } from './utils/bearer-token';
+import { IUserDocument } from './models/user';
+import { userPagination } from './utils/helper';
+import { PaginationI } from './interfaces/paginationI';
+
+
+
+declare global {
+    interface Auth {
+        user: IUserDocument | null
+    }
+    namespace Express {
+        export interface Request {
+            authToken?: string;
+            auth: Auth,
+            pagination: PaginationI<any>| Record<string,any>,
+        }
+    }
+}
 
 export const app: Application = express();
 
 app.use(express.json()).use(express.urlencoded({ extended: true }))
-    .use(morgan('dev')).use(cors()).use(setExpressGlobalObject);
+    .use(morgan('dev')).use(cors()).use(setExpressGlobalObject).use(userBearerToken()).use(userPagination());
 
 
-app.use('/api',routes);
+app.use('/api', routes);
 
 app.use((_req: Request, _res: Response, next: NextFunction) => {
     next(new NotFound('Route not found'))
@@ -33,6 +52,4 @@ app.use((error: any, _req: Request, _res: Response, _next: NextFunction) => {
     return apiResponse().setStatusCode(error.status || StatusCodes.INTERNAL_SERVER_ERROR)
         .setMessage(error.message || ReasonPhrases.INTERNAL_SERVER_ERROR)
         .setData({ stack: error.stack }).toJson()
-
-
 })

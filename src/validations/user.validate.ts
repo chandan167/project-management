@@ -27,3 +27,8 @@ export const SignUpSchema: ValidationChain[] = [
         return true
     })
 ]
+
+export const SignInSchema: ValidationChain[] = [
+    body('email').notEmpty().withMessage('Email is required').bail().isEmail().normalizeEmail().withMessage('Invalid Email-Id').bail(),
+    body('password').notEmpty().withMessage('Password is required').bail(),
+] 

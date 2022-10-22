@@ -26,3 +26,35 @@ export function generateJwtToken(payload: any) {
         refreshToken: generateRefreshToken(payload),
     }
 }
+
+export function verifyAuthToken(token: string) {
+    try {
+        return Jwt.verify(token, publicKey, {
+            algorithms: ['RS256'],
+            subject: 'jwt.auth.token'
+        })
+    } catch (error: Error | any) {
+        if (error.name == 'JsonWebTokenError') {
+            throw new Error('Auth token invalid')
+        }
+        if (error.name == 'TokenExpiredError') {
+            throw new Error('Auth token expire')
+        }
+    }
+}
+
+export function verifyRefreshToken(token: string) {
+    try {
+        return Jwt.verify(token, publicKey, {
+            algorithms: ['RS256'],
+            subject: 'jwt.refresh.token'
+        })
+    } catch (error: Error | any) {
+        if (error.name == 'JsonWebTokenError') {
+            throw new Error('Auth token invalid')
+        }
+        if (error.name == 'TokenExpiredError') {
+            throw new Error('Auth token expire')
+        }
+    }
+}

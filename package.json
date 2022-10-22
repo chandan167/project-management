@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/main.js",
     "start:dev": "ts-node-dev --respawn src/main.ts",
-    "compose:dev:up": "docker compose --env-file .env.dev up --build -d",
+    "compose:dev:up": "docker compose --env-file .env.dev up --build",
     "compose:dev:down": "docker compose --env-file .env.dev down -v",
     "compose:prod:up": "npm install && npm run build && docker compose -f docker-compose.prod.yml --env-file .env.prod up --build -d",
     "compose:prod:down": "docker compose -f docker-compose.prod.yml --env-file .env.prod down -v",
