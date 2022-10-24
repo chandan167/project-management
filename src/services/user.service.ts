@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid'
 import { PaginationI } from "../interfaces/paginationI";
 import { IUser, User, UserOrderKeyType } from "../models/user";
 
@@ -26,6 +27,7 @@ export async function findById(id:string) {
 }
 
 export async function createUser(user: IUser){
+    if(!user.password) user.password = uuidv4();
     return await User.create(user);
 }
 
@@ -39,4 +41,8 @@ export async function userLogin(email:string, password:string){
 
 export async function getUserList(option: PaginationI<UserOrderKeyType>){
     return User.pagination(option)
+}
+
+export async function deleteMultipleById(ids:Array<string>){
+    return User.deleteManyById(ids)
 }

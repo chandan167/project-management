@@ -1,6 +1,6 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import { Unauthorized } from 'http-errors';
-import { IUser, IUserDocument } from "../models/user";
+import { IUser, IUserDocument, User } from "../models/user";
 import * as UserService from '../services/user.service';
 import * as JwtService from '../services/jwt.service';
 import { apiResponse } from "../utils/api-response";
@@ -12,7 +12,7 @@ export const getUsers: RequestHandler = async (_req: Request, _res: Response, _n
 }
 
 
-export const createUsers: RequestHandler = async (req: Request, _res: Response, _next: NextFunction) => {
+export const signUp: RequestHandler = async (req: Request, _res: Response, _next: NextFunction) => {
     const { firstName, lastName, email, phone, password }: IUser = req.body;
     const user = await UserService.createUser({ firstName, lastName, email, password, phone });
     const token = JwtService.generateJwtToken({ id: user._id });
@@ -27,11 +27,11 @@ export const userLogin: RequestHandler = async (req: Request, _res: Response, _n
     return apiResponse().setData({ token: token }).toJson();
 }
 
-export const profile: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const profile: RequestHandler = async (req: Request, _res: Response, _next: NextFunction) => {
     return apiResponse().setData({ user: req.auth.user }).toJson();
 }
 
-export const profileUpdate: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
+export const profileUpdate: RequestHandler = async (req: Request, _res: Response, _next: NextFunction) => {
     const user = req.auth.user as IUserDocument
     const { firstName, lastName, email, phone } = req.body;
     if (email != user?.email) {
@@ -52,4 +52,20 @@ export const userList: RequestHandler = async (req:Request, _res:Response, _next
     const {page, limit, orderKey, orderValue, search} = req.pagination;
     const paginationData = await UserService.getUserList({page, limit, orderKey, orderValue, search}); 
     return apiResponse().setData({ users: paginationData }).toJson();
+}
+
+export const createUser: RequestHandler = async (req:Request, _res:Response, _next:NextFunction) =>{
+    const { firstName, lastName, email, phone }: IUser = req.body;
+    const user = await UserService.createUser({
+        firstName, lastName, email, phone,
+        password: null
+    });
+    return apiResponse().setData({user:user}).setStatusCode(StatusCodes.CREATED).setMessage('User add successful').toJson();
+}
+
+export const deleteMultipleUsers: RequestHandler = async (req:Request, _res:Response, _next:NextFunction) =>{
+    const {ids} = req.body;
+    const deleteResult = await UserService.deleteMultipleById(ids)
+    return apiResponse().setData({ deleteResult: deleteResult }).setMessage('Users deleted successful').toJson();
+    
 }

@@ -3,6 +3,7 @@ import { Document, Schema, model, Model, Types, FilterQuery } from 'mongoose';
 import bcrypt from 'bcryptjs';
 import { environment } from '../config/environment';
 import { PaginationDataI, PaginationI } from '../interfaces/paginationI';
+import { getRequest } from '../utils/express-object';
 
 export interface IUser {
     firstName: string;
@@ -13,7 +14,7 @@ export interface IUser {
     phone?: string;
     phoneVerifiedAt?: Date | null
     avatar?: string;
-    password: string;
+    password: string | any;
     isSuperAdmin?: boolean;
 }
 
@@ -31,9 +32,10 @@ interface IUserModel extends Model<IUserDocument> {
     findByEmail(email: string): Promise<IUserDocument | null>;
     findByPhone(phone: string): Promise<IUserDocument | null>;
     findByPk(id: string): Promise<IUserDocument | null>;
-    findByEmailAndNotEqualById(email:string, id:string): Promise<IUserDocument | null>;
-    findByPhoneAndNotEqualById(phone:string, id:string): Promise<IUserDocument | null>;
+    findByEmailAndNotEqualById(email: string, id: string): Promise<IUserDocument | null>;
+    findByPhoneAndNotEqualById(phone: string, id: string): Promise<IUserDocument | null>;
     pagination(options: PaginationI<UserOrderKeyType>): Promise<PaginationDataI<IUserDocument>>
+    deleteManyById(ids: Array<string>): Promise<any>
 }
 
 const userSchema = new Schema<IUserDocument>({
@@ -45,7 +47,7 @@ const userSchema = new Schema<IUserDocument>({
     phoneVerifiedAt: { type: Date, default: null },
     avatar: { type: String, default: null },
     password: { type: String, required: true },
-    isSuperAdmin: {type:Boolean, default: false},
+    isSuperAdmin: { type: Boolean, default: false },
 }, {
     timestamps: true,
     toJSON: {
@@ -96,31 +98,40 @@ userSchema.static('findByPk', async function (id: string): Promise<IUserDocument
     return this.findById(_id)
 })
 
-userSchema.static('findByEmailAndNotEqualById', async function (email:string, id: string): Promise<IUserDocument | null> {
+userSchema.static('findByEmailAndNotEqualById', async function (email: string, id: string): Promise<IUserDocument | null> {
     const _id = new Types.ObjectId(id)
     return this.findOne({
-        email:email,
-        _id: {"$ne": _id}
+        email: email,
+        _id: { "$ne": _id }
     })
 })
 
-userSchema.static('findByPhoneAndNotEqualById', async function (phone:string, id: string): Promise<IUserDocument | null> {
+userSchema.static('findByPhoneAndNotEqualById', async function (phone: string, id: string): Promise<IUserDocument | null> {
     const _id = new Types.ObjectId(id)
     return this.findOne({
-        phone:phone,
-        _id: {"$ne": _id}
+        phone: phone,
+        _id: { "$ne": _id }
+    })
+})
+
+userSchema.static('deleteManyById', async function (ids: Array<string>): Promise<any> {
+    const _ids = ids.map(id => {
+        return new Types.ObjectId(id)
+    })
+    return this.deleteMany({
+        _id: { "$in": _ids }
     })
 })
 
 userSchema.static('pagination', async function (options: PaginationI<UserOrderKeyType>): Promise<PaginationDataI<IUserDocument>> {
-    let filter:FilterQuery<IUserDocument> = {};
+    let filter: FilterQuery<IUserDocument> = {};
     const page = Number(options.page);
     const limit = Number(options.limit);
-    const offSet = ((page -1) * limit);
+    const offSet = ((page - 1) * limit);
     const search = options.search
-    console.log(options)
-    if(options.search){
+    if (options.search) {
         filter = {
+            ...filter,
             "$or": [
                 {
                     firstName: {
@@ -148,30 +159,40 @@ userSchema.static('pagination', async function (options: PaginationI<UserOrderKe
                 },
             ]
         }
+
+    }
+    const request = getRequest();
+    if (request.auth.user) {
+        filter = {
+            ...filter,
+            _id: {
+                $ne: request.auth.user._id
+            }
+        }
     }
     const [count, users] = await Promise.all([
         this.count(filter),
         this.find(filter).limit(limit).skip(offSet).sort([[options.orderKey, Number(options.orderValue)]]),
-    ]) ;
+    ]);
     const allPages = Math.ceil(count / limit)
-    let nextPage:number | null = page + 1;
-    if(allPages <= page){
+    let nextPage: number | null = page + 1;
+    if (allPages <= page) {
         nextPage = null;
     }
     let previousPage = null;
-    if(page> 1){
-        previousPage = page -1;
+    if (page > 1) {
+        previousPage = page - 1;
     }
-   return {
-    search: search,
-    count:users.length,
-    nextPage: nextPage,
-    previousPage: previousPage,
-    currentPage: page,
-    total: count,
-    limit: limit,
-    record: users
-   }
+    return {
+        search: search,
+        count: users.length,
+        nextPage: nextPage,
+        previousPage: previousPage,
+        currentPage: page,
+        total: count,
+        limit: limit,
+        record: users
+    }
 })
 
 
