@@ -19,6 +19,10 @@ export function getResponse():Response{
     return response;
 }
 
+export function setRequest(req:Request){
+    request = req;
+}
+
 export function getNextFunction():NextFunction{
     return nextFunction;
 }

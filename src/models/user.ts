@@ -162,7 +162,7 @@ userSchema.static('pagination', async function (options: PaginationI<UserOrderKe
 
     }
     const request = getRequest();
-    if (request.auth.user) {
+    if (request.auth && request.auth.user) {
         filter = {
             ...filter,
             _id: {

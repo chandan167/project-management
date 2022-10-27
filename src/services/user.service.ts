@@ -1,4 +1,5 @@
-import { v4 as uuidv4 } from 'uuid'
+import { v4 as uuidv4 } from 'uuid';
+import {UnprocessableEntity} from 'http-errors';
 import { PaginationI } from "../interfaces/paginationI";
 import { IUser, User, UserOrderKeyType } from "../models/user";
 
@@ -23,7 +24,15 @@ export async function getUsers(){
 }
 
 export async function findById(id:string) {
-    return User.findByPk(id);
+    try{
+        return await User.findByPk(id);
+    }catch(error:Error|any){
+        if(error.name == 'BSONTypeError'){
+            throw new UnprocessableEntity(`Invalid user id: ${id}`);
+        }
+        throw error
+    }
+    
 }
 
 export async function createUser(user: IUser){

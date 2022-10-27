@@ -1,7 +1,6 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
 import { matchedData, ValidationChain, validationResult } from "express-validator";
 import { StatusCodes } from "http-status-codes";
-import { apiResponse } from "../utils/api-response";
 import { asyncResolver } from "../utils/helper";
 
 
@@ -12,10 +11,10 @@ const myValidationResult = validationResult.withDefaults({
 });
 
 
-const validate: RequestHandler = (req: Request, _res: Response, next: NextFunction) => {
+const validate: RequestHandler = (req: Request, res: Response, next: NextFunction) => {
     const errors = myValidationResult(req);
     if (!errors.isEmpty()) {
-        return apiResponse().setStatusCode(StatusCodes.UNPROCESSABLE_ENTITY).setMessage('Validation error').setData({
+        return res.apiResponse.setStatusCode(StatusCodes.UNPROCESSABLE_ENTITY).setMessage('Validation error').setData({
             error: errors.mapped()
         }).toJson();
     }
