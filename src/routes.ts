@@ -22,5 +22,6 @@ routes.use('/user', group((userRoute) =>{
     userRoute.post('/', validateSchema(UserValidation.CreateUserSchema), asyncResolver(UserController.createUser))
     userRoute.post('/delete-many', validateSchema(UserValidation.DeleteMultipleSchema), asyncResolver(UserController.deleteMultipleUsers))
     userRoute.get('/:id', asyncResolver(UserController.userDetail))
+    userRoute.put('/:id', validateSchema(UserValidation.userUpdateSchema), asyncResolver(UserController.updateUser))
 }))
 

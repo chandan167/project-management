@@ -20,7 +20,6 @@ const validate: RequestHandler = (req: Request, res: Response, next: NextFunctio
     }
     req.query = matchedData(req, { locations: ['query'] });
     req.body = matchedData(req, { locations: ['body'] });
-    req.params = matchedData(req, { locations: ['params'] });
     next();
 }
 

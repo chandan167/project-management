@@ -22,6 +22,8 @@ export interface IUserDocument extends IUser, Document {
     comparePassword(password: string): Promise<Boolean>;
     isEmailVerified(): Boolean;
     isPhoneVerified(): Boolean;
+    makeEmailVerified(value:Boolean|null):IUserDocument;
+    makePhoneVerified(value:Boolean|null):IUserDocument;
 }
 
 export type UserOrderKeyType = 'firstName' | 'lastName' | 'email' | 'phone' | 'createdAt';
@@ -79,6 +81,26 @@ userSchema.method('comparePassword', async function (password: string): Promise<
 
 userSchema.method('isEmailVerified', function (): Boolean {
     return !!this.emailVerifiedAt;
+})
+
+userSchema.method('makeEmailVerified', function (value:Boolean|null):void{
+    if(value == true && this.emailVerifiedAt == null){
+        this.emailVerifiedAt = new Date();
+    }
+    if(value == false && this.emailVerifiedAt != null){
+        this.emailVerifiedAt = null;
+    }
+    return this;
+})
+
+userSchema.method('makePhoneVerified', function (value:Boolean|null):void{
+    if(value == true && this.phoneVerifiedAt == null){
+        this.phoneVerifiedAt = new Date();
+    }
+    if(value == false && this.phoneVerifiedAt != null){
+        this.phoneVerifiedAt = null;
+    }
+    return this;
 })
 
 userSchema.method('isPhoneVerified', function (): Boolean {

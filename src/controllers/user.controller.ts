@@ -1,6 +1,6 @@
 import { NextFunction, Request, RequestHandler, Response } from "express";
-import { Unauthorized } from 'http-errors';
-import { IUser, IUserDocument, User } from "../models/user";
+import { Unauthorized, NotFound } from 'http-errors';
+import { IUser, IUserDocument } from "../models/user";
 import * as UserService from '../services/user.service';
 import * as JwtService from '../services/jwt.service';
 import { StatusCodes } from "http-status-codes";
@@ -79,4 +79,13 @@ export const userDetail: RequestHandler = async (req:Request, res:Response, _nex
     const {id} = req.params;
     const user = await UserService.findById(id)
     return res.apiResponse.setData({ user: user }).toJson();
+}
+
+export const updateUser: RequestHandler = async (req:Request, res:Response, _next: NextFunction) =>{
+    const {id} = req.params;
+    const { firstName, lastName, email, phone, emailVerifiedAt, phoneVerifiedAt }: IUser = req.body;
+    const user: IUserDocument = (await UserService.findById(id)) as IUserDocument;
+    if(!user) throw new NotFound('User not found')
+    const updatedUser = await UserService.updateUser(user, { firstName, lastName, email, phone, emailVerifiedAt, phoneVerifiedAt } as IUser);
+    return res.apiResponse.setData({user:updatedUser}).setStatusCode(StatusCodes.CREATED).setMessage('User update successful').toJson();
 }
